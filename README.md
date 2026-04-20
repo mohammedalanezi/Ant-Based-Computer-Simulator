@@ -161,5 +161,7 @@ where W^t(L) = average of P at L and its non-walled neighbours (diffusion averag
 | **3D rendering** | Implement `IRenderer` with an OpenGL/Vulkan backend; pass to the main loop. |
 | **New cell types** | Add to `CellType` enum, handle in `CircuitLoader::parseLine()`, `Grid::reachableCells()`, and the renderer. |
 | **Step hooks / logging** | `sim.setPreStepCallback(fn)` / `sim.setPostStepCallback(fn)`. |
+
+Created by Mohammed Al-Anezi, may produce future work with this ant model, stay tuned.
 | **Parallel collision** | The `COLLISIONHANDLING` algorithm in `Simulator::substepCollisionHandle()` is the natural parallelisation point (noted as future work in the 2012 paper). |
 | **Additional circuits** | Write a `.circuit` text file; the loader handles all topology. |
