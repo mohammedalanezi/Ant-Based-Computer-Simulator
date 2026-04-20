@@ -1,0 +1,62 @@
+# ============================================================================
+#  Ant-Based Inverter
+#  Michael, L. (2009). Ant-Based Computing. Artificial Life, 15(3):337-349.
+#
+#  Topology (axial q,r hex coordinates, flat-top):
+#
+#    Source path (row 0):  SOURCE(-4,0)->(-3,0)->(-2,0)->(-1,0)->Junction(0,0)
+#    Output arm (E):       (0,0)->Pump-B(1,0)->(2,0)->Probe(Output)(3,0)->Sink_out(4,0)
+#    Sink arm (SE):        (0,0)->Sink-B(0,1)  [Source ants exit here when Input=1]
+#    Input path (row 1):   SWITCH(-4,1)->(-3,1)->(-2,1)->Pump-A(-1,1)->Sink-B(0,1)
+#
+#  Mechanism:
+#    Input=0: P(Pump-B=1,0) ≈ 1.37 > P(Sink-B=0,1) ≈ 1.33  -> Output=HIGH
+#    Input=1: Ants at Pump-A secrete (P(PA)=6.7 ≥ T+ε=6.1).
+#             P(PA) rises to ~51 -> P(Sink-B) rises to ~6.1 >> P(Pump-B)=1.5
+#             -> Source ants divert to Sink-B -> Output=LOW
+#    Recovery: When Input goes OFF, P(PA) decays to steady-state,
+#              P(Sink-B) decays to 1.33 -> Output returns to HIGH
+#
+#  Parameters (Table 1, Michael 2009):
+# ============================================================================
+
+PARAM spawn_prob    0.95
+PARAM nonlinearity  30.0
+PARAM threshold     6.0
+PARAM epsilon       0.1
+PARAM secretion     12.0
+PARAM dissipation   0.10
+PARAM diffusion     0.10
+PARAM probe_window  30
+
+# -- Source path ---------------------------------------------------------------
+SOURCE -4  0  E
+PATH   -3  0
+PATH   -2  0
+PATH   -1  0
+PATH    0  0        # Junction: front-arc(E) -> {SE(0,1), E(1,0), NE(1,-1)}
+
+# -- Output arm ----------------------------------------------------------------
+PUMP    1  0  0.2   # Pump-B
+PATH    2  0
+PROBE   3  0  Output
+SINK    4  0        # Sink_out
+
+# -- Sink arm (SE directly from junction) -------------------------------------
+SINK    0  1        # Sink-B: no reachable cells -> ants removed without secreting
+
+# -- Input path ----------------------------------------------------------------
+SWITCH -4  1  E  Input
+PATH   -3  1
+PATH   -2  1
+PUMP   -1  1  1.0   # Pump-A (1 cell from Sink-B; secretion raises P(Sink-B))
+
+# -- Isolation walls -----------------------------------------------------------
+WALL_BETWEEN -1 1   0 0   # Pump-A <-> Junction
+WALL_BETWEEN -1 1  -1 0   # Pump-A <-> Source path
+WALL_BETWEEN -2 1  -2 0   # Input <-> Source
+WALL_BETWEEN -2 1  -1 0   # Input <-> Source (diagonal)
+WALL_BETWEEN -3 1  -3 0   # Input <-> Source
+WALL_BETWEEN -3 1  -2 0   # Input <-> Source (diagonal)
+WALL_BETWEEN -4 1  -4 0   # Input <-> Source
+WALL_BETWEEN  1  0  0 1   # Pump-B <-> Sink-B (pheromone isolation)

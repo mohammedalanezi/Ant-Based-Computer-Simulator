@@ -1,0 +1,86 @@
+﻿# ============================================================================
+#  Ant-Based Inverter with Two Inputs (NOR gate via wire-merge)
+#  Based on Michael, L. (2009). Ant-Based Computing.
+#
+#  Topology:
+#    Source path (row 0):  SOURCE(-4,0)->...->Junction(0,0)
+#    Output arm (E):       (0,0)->Pump-B(1,0)->(2,0)->Probe(Output)(3,0)->Sink(4,0)
+#    Sink arm (SE):        (0,0)->Sink-B(0,1)
+#
+#    Two input switches merge at (-5,1) then feed into inverter input (-4,1):
+#      Switch A: (-8,1) E -> (-7,1) E -> (-6,1) E -> merge(-5,1)
+#      Switch B: (-7,2) E -> (-6,2) E -> (-5,2) NE -> merge(-5,1)
+#    From merge: PATH (-4,1) -> (-3,1) -> (-2,1) -> Pump-A(-1,1) -> Sink-B(0,1)
+#
+#  Mechanism:
+#    When either input is HIGH (flow ≥0.22), ants reach Pump-A, secrete pheromone,
+#    raise P(Sink-B) above P(Pump-B), divert source ants to sink -> Output LOW.
+#    Only when both inputs are LOW (flow ≤0.05) does output remain HIGH.
+#
+#  Parameters (Table 1, Michael 2009):
+# ============================================================================
+
+PARAM spawn_prob    0.95
+PARAM nonlinearity  30.0
+PARAM threshold     6.0
+PARAM epsilon       0.1
+PARAM secretion     12.0
+PARAM dissipation   0.10
+PARAM diffusion     0.10
+PARAM probe_window  30
+
+# -- Source path (unchanged) -------------------------------------------------
+SOURCE -4  0  E
+PATH   -3  0
+PATH   -2  0
+PATH   -1  0
+PATH    0  0        # Junction
+
+# -- Output arm (unchanged) --------------------------------------------------
+PUMP    1  0  0.2   # Pump-B
+PATH    2  0
+PROBE   3  0  Output
+SINK    4  0
+
+# -- Sink arm (unchanged) ----------------------------------------------------
+SINK    0  1        # Sink-B
+
+# -- Two-input merge feeding inverter input ----------------------------------
+# Merge cell at (-5,1)
+PATH   -5  1
+
+# Switch A (left, row 1) # low = 0.04, high = 0.3
+SWITCH -8  1  E  InA  0.3   # low flow for logic 0 test
+PATH   -7  1
+PATH   -6  1
+
+# Switch B (bottom-left, row 2)
+SWITCH -8  3  NE  InB  0.3    # high flow for logic 1 test
+PATH   -7  2
+
+# Inverter input path from merge to Pump-A
+PATH   -4  1
+PATH   -3  1
+PATH   -2  1
+PUMP   -1  1  1.0   # Pump-A
+
+# -- Isolation walls (prevent cross-talk and backflow) -----------------------
+# Between input paths and source path (row 0)
+WALL_BETWEEN -1 1   0 0   # Pump-A <-> Junction
+WALL_BETWEEN -1 1  -1 0   # Pump-A <-> Source path
+WALL_BETWEEN -2 1  -2 0
+WALL_BETWEEN -2 1  -1 0
+WALL_BETWEEN -3 1  -3 0
+WALL_BETWEEN -3 1  -2 0
+WALL_BETWEEN -4 1  -4 0
+WALL_BETWEEN -5 1  -5 0   # Merge <-> Source path at (-5,0) - ensure no cross
+WALL_BETWEEN -6 1  -6 0
+WALL_BETWEEN -7 1  -7 0
+
+# Between the two input arms to prevent backflow at merge
+WALL_BETWEEN -5 1  -5 2   # Block ants from merge going back into Switch B's path
+WALL_BETWEEN -6 1  -6 2   # Block side connection
+WALL_BETWEEN -6 2  -5 1   # Not needed, but keep direction clear
+
+# Between Pump-B and Sink-B (pheromone isolation)
+WALL_BETWEEN  1  0  0 1

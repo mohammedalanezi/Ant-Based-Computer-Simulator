@@ -1,0 +1,24 @@
+PARAM spawn_prob      0.95
+PARAM nonlinearity    30.0
+PARAM threshold       6.0
+PARAM epsilon         0.1
+PARAM secretion       12.0
+PARAM dissipation     0.1
+PARAM diffusion       0.1
+PARAM probe_window    30
+
+SWITCH   -11     4  E    1.0  1.0
+PATH     -10     4
+PROBE     -9     4  Input
+PATH      -8     4
+PATH      -7     4
+PUMP      -6     4  1.0
+SOURCE    -5     2  E    1.0
+SINK      -5     3
+PUMP      -4     2  0.5
+PATH      -3     2
+PATH      -2     2
+PATH      -1     2
+PATH       0     2
+PROBE      1     2  Output
+SINK       2     2
