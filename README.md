@@ -7,6 +7,7 @@ A faithful C++17 implementation of the ant-based computing model from:
 
 Ants navigate a flat-top hexagonal grid following pheromone gradients, collectively implementing universal computation. The simulator rigorously implements every algorithm in the papers.
 
+A NOR-GATE running in the simulator:
 <img width="1414" height="835" alt="image" src="https://github.com/user-attachments/assets/e31674eb-0e5c-4c72-bf70-103c0700b239" />
 
 Check out this [program I developed](https://github.com/mohammedalanezi/Ant-Circuit-Creator) for quickly creating and editing Ant Circuits.
